@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/webflow http://www.springframework.org/schema/webflow/spring-webflow-2.4.xsd">
+
+	<var name="customer" class="com.example.demo.pizza.model.Customer"/>
+	
+	<view-state id="welcome" view="pizza/customer/welcome">
+		<transition on="phoneEntered" to="lookupCustomer"></transition>
+	</view-state>
+	
+	<action-state id="lookupCustomer">
+		<evaluate expression="pizzaFlowActions.lookupCustomer(requestParameters.phoneNumber)" result="customer"></evaluate>
+		<transition on-exception="com.example.demo.pizza.service.CustomerNotFoundException" to="registrationForm"></transition>
+		<transition to="customerReady"></transition>
+	</action-state>
+	
+	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+	<view-state id="registrationForm" view="pizza/customer/registrationForm" model="customer">
+		<on-entry>
+			<evaluate expression="customer.phoneNumber = requestParameters.phoneNumber"></evaluate>
+		</on-entry>
+		<transition on="submit" to="checkDeliveryArea"></transition>
+	</view-state>
+	
+	<decision-state id="checkDeliveryArea">
+		<if test="pizzaFlowActions.checkDeliveryArea(customer.zipCode)" 
+			then="addCustomer"
+			else="deliveryWarning" />
+	</decision-state>
+	
+	<view-state id="deliveryWarning" view="pizza/customer/deliveryWarning">
+		<transition on="accept" to="addCustomer"></transition>
+	</view-state>
+	
+	<action-state id="addCustomer">
+		<evaluate expression="pizzaFlowActions.addCustomer(customer)"></evaluate>
+		<transition to="customerReady"></transition>
+	</action-state>
+	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+	
+	<end-state id="customerReady">
+		<output name="customer"/>
+	</end-state>
+	<end-state id="cancel"></end-state>
+	
+	<global-transitions>
+		<transition on="cancel" to="cancel"></transition>
+	</global-transitions>
+	
+</flow>

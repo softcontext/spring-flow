@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/webflow http://www.springframework.org/schema/webflow/spring-webflow-2.4.xsd">
+
+	<!-- pizza-flow.xml 에서 order-flow를 호출할 때 <input name="order" value="order"/> 코드로 파라미터를 넘겨준다. -->
+	<input name="order" required="true"/>
+	
+	<view-state id="showOrder" view="pizza/order/showOrder">
+		<transition on="createPizza" to="createPizza"></transition>
+		<transition on="checkout" to="orderCreated"></transition>
+		<transition on="cancel" to="cancel"></transition>
+	</view-state>
+	
+	<view-state id="createPizza" model="flowScope.pizza" view="pizza/order/createPizza">
+		<on-entry>
+			<set name="flowScope.pizza" value="new com.example.demo.pizza.model.Pizza()"></set>
+			<evaluate expression="T(com.example.demo.pizza.model.Topping).asList()" result="viewScope.toppingsList"></evaluate>
+		</on-entry>
+		<transition on="addPizza" to="showOrder">
+			<!-- showOrder 상태로 전이되기 전에 addPizza 메소드가 호출되어 flowScope.pizza 객체가 전달된다. -->
+			<evaluate expression="order.addPizza(flowScope.pizza)"></evaluate>
+		</transition>
+		<transition on="cancel" to="showOrder"></transition>
+	</view-state>
+	
+	<end-state id="cancel"></end-state>
+	<end-state id="orderCreated"></end-state>
+	
+</flow>

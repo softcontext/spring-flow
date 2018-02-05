@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:flow="http://www.springframework.org/schema/webflow-config"
+	xsi:schemaLocation="http://www.springframework.org/schema/webflow-config http://www.springframework.org/schema/webflow-config/spring-webflow-config.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="mvcViewFactoryCreator" class="org.springframework.webflow.mvc.builder.MvcViewFactoryCreator">
+		<property name="viewResolvers">
+			<list>
+				<ref bean="viewResolver" />
+			</list>
+		</property>
+		<property name="useSpringBeanBinding" value="true" />
+	</bean>
+	
+	<flow:flow-builder-services id="flowBuilderServices" view-factory-creator="mvcViewFactoryCreator" development="true" />
+	
+	<!-- #1 : 웹플로우 등록기 -->
+	<flow:flow-registry id="loginFlowRegistry" flow-builder-services="flowBuilderServices">
+		<flow:flow-location id="loginFlowAccessPath" path="/WEB-INF/flows/login-flow.xml" />
+	</flow:flow-registry>
+
+	<!-- #2 : 웹플로우 실행기 -->
+	<flow:flow-executor id="loginFlowExecutor" flow-registry="loginFlowRegistry" />
+	
+	<!-- #3 : 웹플로우 핸들러매핑 -->
+	<bean class="org.springframework.webflow.mvc.servlet.FlowHandlerMapping">
+		<property name="order" value="-1" />
+		<property name="flowRegistry" ref="loginFlowRegistry" />
+	</bean>
+	
+	<!-- #4 : 웹플로우 핸들러 -->
+	<bean class="org.springframework.webflow.mvc.servlet.FlowHandlerAdapter">
+		<property name="flowExecutor" ref="loginFlowExecutor" />
+		<property name="saveOutputToFlashScopeOnRedirect" value="true" />
+	</bean>
+	
+</beans>

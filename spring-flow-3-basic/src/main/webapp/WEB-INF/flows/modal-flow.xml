@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/webflow http://www.springframework.org/schema/webflow/spring-webflow-2.4.xsd">
+
+	<view-state id="step1" view="embeddedFlowInModalDialog/step1">
+		<transition on="next" to="step2" />
+		<transition on="cancel" to="cancel" />
+	</view-state>
+
+	<view-state id="step2" view="embeddedFlowInModalDialog/step2">
+		<transition on="previous" to="step1" />
+		<transition on="finish" to="success" />
+		<transition on="cancel" to="cancel" />
+	</view-state>
+
+	<!-- 
+		// 다음 설정이 modal-flow.xml에서 externalRedirect를 사용하기 위해서 필요하다.
+		@Override
+		public void addViewControllers(ViewControllerRegistry registry) {
+			registry.addViewController("embeddedFlowInModalDialog/container");
+		}
+	 -->
+	<end-state id="success" view="externalRedirect:embeddedFlowInModalDialog/container?result=success" />
+
+	<end-state id="cancel" view="externalRedirect:embeddedFlowInModalDialog/container?result=cancel" />
+
+</flow>
